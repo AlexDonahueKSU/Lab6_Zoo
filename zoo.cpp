@@ -1,19 +1,22 @@
 // making sure that duplicate and sick animals are removed from all enclosures in a zoo 
 // demonstrates the usage of STL algorithms adapted from Pro C++ 
-// Wayne Cheng
-// 10/2/2015 
-
-#include <iostream> 
-#include  
-#include  
+// Alex
+// 10/21/2026
+#include <algorithm>  // for_each, remove_if, adjacent_find
+#include <iostream>
+#include <list>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>  // pair
 using namespace std; 
 
 // this is similar to typedef 
-using EnclosurePair = pair>; 
-using ZooMap = map>; 
+using ZooMap = map<string, list<string>>; 
+using EnclosurePair = ZooMap::value_type; 
 
 // removes duplicate and sick animals form ZooMap 
-void auditEnclosures(ZooMap& animalsByEnclosure, const list& sickAnimals); 
+void auditEnclosures(ZooMap& animalsByEnclosure, const list<string>& sickAnimals); 
 
 // returns a set of duplicate animals 
 set getDuplicates(const ZooMap& animalsByEnclosure); 
