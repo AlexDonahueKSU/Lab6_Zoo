@@ -19,18 +19,18 @@ using EnclosurePair = ZooMap::value_type;
 void auditEnclosures(ZooMap& animalsByEnclosure, const list<string>& sickAnimals); 
 
 // returns a set of duplicate animals 
-set getDuplicates(const ZooMap& animalsByEnclosure); 
+set<string> getDuplicates(const ZooMap& animalsByEnclosure); 
 
 int main() 
 { 
 	// initialize map ZooMap 
-	animals = { { "Orange", { "aardvark", "lion", "buffalo", "wildcat", "lion", "eagle" } }, 
+	ZooMap animals = { { "Orange", { "aardvark", "lion", "buffalo", "wildcat", "lion", "eagle" } }, 
 				{ "Green", { "elephant", "zebra", "aardvark", "bear", "alligator"} }, 
-				{ "Yellow", { "goose", "alligator", "flamingo", "goose", } }, { "Blue", 
-				{ "shark", "dolphin", "alligator", "turtle", "eagle", "penguin"} }, { "Red", 
-				{ "deer", "duck", "wildcat", "lion" } } }; 
+				{ "Yellow", { "goose", "alligator", "flamingo", "goose", } }, 
+                { "Blue", { "shark", "dolphin", "alligator", "turtle", "eagle", "penguin"} }, 
+                { "Red", { "deer", "duck", "wildcat", "lion" } } }; 
 	
-	list sickAnimals = { "buffalo", "wildcat", "eagle"}; 
+	list<string> sickAnimals = { "buffalo", "wildcat", "eagle"}; 
 	
 	// local lambda expression to print a enclosure 
 	auto printEnclosure = [](const EnclosurePair& enclosure) 
@@ -55,7 +55,7 @@ int main()
 // 
 // removes from each list any name on the sickAnimals list and 
 // any name that is found in any other enclosure 
-void auditEnclosures(ZooMap& animalsByEnclosure, const list& sickAnimals) 
+void auditEnclosures(ZooMap& animalsByEnclosure, const list<string>& sickAnimals) 
 { 
 	// get all the duplicate names 
 	set toRemove = getDuplicates(animalsByEnclosure); 
@@ -79,10 +79,10 @@ void auditEnclosures(ZooMap& animalsByEnclosure, const list& sickAnimals)
 // returns a set of all animal names that appear in more than one list in the map 
 // the implementation generates one large list of all the animal names from all the 
 // lists in the map, sorts it, then finds all duplicates in the sorted list with adjacent_find() 
-set getDuplicates(const ZooMap& animalsByEnclosure) 
+set<string> getDuplicates(const ZooMap& animalsByEnclosure) 
 { 
 	// Collect all the names from all the lists into one big list 
-	list allNames; for (auto& enclosure : animalsByEnclosure) 
+	list<string> allNames; for (auto& enclosure : animalsByEnclosure) 
 	{ 
 		allNames.insert(allNames.end(), enclosure.second.begin(), enclosure.second.end()); 
 	} 
@@ -93,7 +93,7 @@ set getDuplicates(const ZooMap& animalsByEnclosure)
 	// use adjacent_find() to find instances of two or more identical names 
 	// next to each other. 
 	// loop until adjacent_find() returns the end iterator. 
-	set duplicates; 
+	set<string> duplicates; 
 	for(auto adj = allNames.cbegin(); adj != allNames.cend(); adj = adjacent_find(++adj, allNames.cend())) duplicates.insert(*adj);	 
 	
 	// note this is a set so multiple insertions 
