@@ -2,13 +2,13 @@
 // demonstrates the usage of STL algorithms adapted from Pro C++ 
 // Alex
 // 10/21/2026
-#include <algorithm>  // for_each, remove_if, adjacent_find
+#include <algorithm>  
 #include <iostream>
 #include <list>
 #include <map>
 #include <set>
 #include <string>
-#include <utility>  // pair
+#include <utility>  
 using namespace std; 
 
 // this is similar to typedef 
@@ -17,9 +17,6 @@ using EnclosurePair = ZooMap::value_type;
 
 // removes duplicate and sick animals form ZooMap 
 void auditEnclosures(ZooMap& animalsByEnclosure, const list<string>& sickAnimals); 
-
-// returns a set of duplicate animals 
-set<string> getDuplicates(const ZooMap& animalsByEnclosure); 
 
 int main() 
 { 
@@ -57,46 +54,24 @@ int main()
 // any name that is found in any other enclosure 
 void auditEnclosures(ZooMap& animalsByEnclosure, const list<string>& sickAnimals) 
 { 
-	// get all the duplicate names 
-	set toRemove = getDuplicates(animalsByEnclosure); 
-	
-	// combine the duplicates and sick animals -- we want to remove names on both lists from 
-	//all enclosures 
-	toRemove.insert(sickAnimals.cbegin(), sickAnimals.cend()); 
-	
-	// Now remove all the names we need to remove using nested lambda expressions and the remove-erase-idiom 
-	for_each(animalsByEnclosure.begin(), animalsByEnclosure.end(), [&toRemove](EnclosurePair& enclosure) 
-	{ 
-		auto it = remove_if(enclosure.second.begin(), enclosure.second.end(), [&toRemove](const string& name) 
-		{ 
-			return (toRemove.find(name) != toRemove.end()); 
-		}); 
-		enclosure.second.erase(it, enclosure.second.end()); 
-	}
-); 
-} 
+	set<string> sick(sickAnimals.begin(), sickAnimals.end());
+    set<string> seen;
 
-// returns a set of all animal names that appear in more than one list in the map 
-// the implementation generates one large list of all the animal names from all the 
-// lists in the map, sorts it, then finds all duplicates in the sorted list with adjacent_find() 
-set<string> getDuplicates(const ZooMap& animalsByEnclosure) 
-{ 
-	// Collect all the names from all the lists into one big list 
-	list<string> allNames; for (auto& enclosure : animalsByEnclosure) 
-	{ 
-		allNames.insert(allNames.end(), enclosure.second.begin(), enclosure.second.end()); 
-	} 
-	// sort the list -- use the list version, not the general algorithm, because the list version is faster 
-	allNames.sort(); 
-	
-	// now it's sorted, all duplicate names will be next to each other. 
-	// use adjacent_find() to find instances of two or more identical names 
-	// next to each other. 
-	// loop until adjacent_find() returns the end iterator. 
-	set<string> duplicates; 
-	for(auto adj = allNames.cbegin(); adj != allNames.cend(); adj = adjacent_find(++adj, allNames.cend())) duplicates.insert(*adj);	 
-	
-	// note this is a set so multiple insertions 
-	// of same element result in single element 
-	return duplicates; 
-	}
+    for (auto& enclosure : animalsByEnclosure)
+    {
+        auto& animals = enclosure.second;
+        auto newEnd = remove_if(animals.begin(), animals.end(),
+            [&sick, &seen](const string& name)
+            {
+                if (sick.find(name) != sick.end())
+                {
+                    return true; 
+                }
+                // First occurrence: remember it.
+                seen.insert(name); 
+                return false;  
+            });
+
+        animals.erase(newEnd, animals.end());
+    }
+} 
